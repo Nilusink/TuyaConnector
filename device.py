@@ -41,10 +41,21 @@ class TuyaDevice(tta.DeviceAsync):
         self._bg_task_routine = self._bg_task()
 
     async def _bg_task(self) -> None:
+        await self.status()
         while self._running:
             data = await self.receive()
             print(f"received {data=}")
             await self.heartbeat()
+
+    async def toggle(self) -> None:
+        if self._last_status == {}:
+            state = True
+
+        else:
+            state = not self._last_status["dps"]["1"]
+
+        await self.set_status(state)
+
 
     async def close(self, **kwargs) -> None:
         self._running = False

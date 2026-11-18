@@ -63,10 +63,20 @@ class HTTPServer:
             if device_id not in self._manager:
                 raise HTTPException(status_code=404, detail="Device not found")
 
-            dev_answer = await self._manager[device_id].set_value(
+            await self._manager[device_id].set_value(
                 data.dps,
                 data.value
             )
+            dev_answer = await self._manager[device_id].receive()
+
+            return {"status": "success", "data": dev_answer}
+
+        @self._app.post("/device/{device_id}/toggle")
+        async def device_toggle(device_id: str) -> dict:
+            if device_id not in self._manager:
+                raise HTTPException(status_code=404, detail="Device not found")
+
+            await self._manager[device_id].toggle()
             dev_answer = await self._manager[device_id].receive()
 
             return {"status": "success", "data": dev_answer}
